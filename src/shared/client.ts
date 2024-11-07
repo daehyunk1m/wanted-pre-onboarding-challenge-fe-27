@@ -1,35 +1,36 @@
 import { pathUtil } from "../utils/pathUtil";
 
-type TapiOtion = Pick<RequestInit, "headers"> & { body?: Record<string, unknown> };
+type TApiOption = Pick<RequestInit, "headers"> & { body?: Record<string, unknown> };
 
 /**
  * fetch api 핸들링 함수
  * --
  */
 export const api = {
-  async get<T>(path: string, option?: TapiOtion) {
+  async get<T>(path: string, option?: TApiOption) {
     return await enhancedFetch<T>("get", path, option);
   },
-  async post<T>(path: string, option?: TapiOtion) {
+  async post<T>(path: string, option?: TApiOption) {
     return await enhancedFetch<T>("post", path, option);
   },
-  async put<T>(path: string, option?: TapiOtion) {
+  async put<T>(path: string, option?: TApiOption) {
     return await enhancedFetch<T>("put", path, option);
   },
-  async delete<T>(path: string, option?: TapiOtion) {
+  async delete<T>(path: string, option?: TApiOption) {
     return await enhancedFetch<T>("delete", path, option);
   },
 };
 
-const enhancedFetch = async <T>(method: "get" | "post" | "put" | "delete", path: string, option?: TapiOtion) => {
+const enhancedFetch = async <T>(method: "get" | "post" | "put" | "delete", path: string, option?: TApiOption) => {
   const host = import.meta.env.VITE_HOST;
+  console.log(host);
   const { validated } = pathUtil;
   // const body = JSON.stringify(option.body);
 
   let init: RequestInit = {
     method,
     headers: option?.headers ?? {},
-    mode: "cors",
+    // mode: "cors",
   };
 
   if (method === "post" || method === "put") {

@@ -24,7 +24,7 @@ dist-ssr
 *.sw?
 
 # ENV
-.env
+# .env
 
 # Lock files
 yarn.lock

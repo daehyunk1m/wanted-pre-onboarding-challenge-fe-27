@@ -1,124 +1,118 @@
-import { produce } from "immer";
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api";
-import { useAuth } from "../../hooks/useAuth";
+import { produce } from "immer";
+
+import { login, signUp } from "../../api";
+import { useAuthStore } from "../../hooks/useAuthStore";
 
 const Auth = () => {
-  const initAuthState = {
+  const navigate = useNavigate();
+  const { setToken } = useAuthStore();
+
+  const [auth, setAuth] = useState({
     email: { value: "", isValidated: false },
     password: { value: "", isValidated: false },
-  };
-
-  const navigate = useNavigate();
-
-  const [auth, setAuth] = useState(initAuthState);
-
-  const handleAuthInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.currentTarget;
-
-    const key = name as "email" | "password";
-    setAuth((auth) =>
-      produce(auth, (entry) => {
-        entry[key].value = value;
-      })
-    );
-  };
+  });
+  const [errorState, setErrorState] = useState({
+    email: { isError: false, message: "" },
+    password: { isError: false, message: "" },
+  });
+  // const [buttonType, setButtonType] = useState<"login" | "signUp">("login");
 
   /**
-   * auth 정보 정합성 확인
+   * auth validation
    */
-  const validatedtAuthValue = (userType: "login" | "signUp") => {
-    const {} = auth;
-    if (!auth.email.isValidated) {
-      if (!auth.email.value.includes("@")) setErrMsg("올바른 이메일 형식을 입력해주세요.");
+  const validationAuthValue = (type: "email" | "password", value: string) => {
+    let validation: boolean;
+    let message = "";
+
+    if (type === "email") {
+      // validating email value
+      if (!value.includes("@")) validation = false;
       else {
-        const [, mail] = auth.email.value.split("@");
-
-        if (!mail.includes(".")) setErrMsg("올바른 이메일 형식을 입력해주세요.");
-        else {
-          if (errMsg?.includes("이메일")) setErrMsg(null);
-
-          setAuth((auth) =>
-            produce(auth, (entry) => {
-              entry[key].isValidated = true;
-            })
-          );
-        }
+        const [, mail] = value.split("@");
+        if (!mail.includes(".")) validation = false;
+        else validation = true;
       }
-    }
 
-    if (!auth.password.isValidated) {
-    }
-
-    if (key === "email") {
-      // validated email value
-      if (!auth.email.value.includes("@")) setErrMsg("올바른 이메일 형식을 입력해주세요.");
-      else {
-        const [, mail] = auth.email.value.split("@");
-
-        if (!mail.includes(".")) setErrMsg("올바른 이메일 형식을 입력해주세요.");
-        else {
-          if (errMsg?.includes("이메일")) setErrMsg(null);
-
-          setAuth((auth) =>
-            produce(auth, (entry) => {
-              entry[key].isValidated = true;
-            })
-          );
-        }
-      }
+      if (!validation) message = "올바른 이메일 형식을 입력해주세요.";
     } else {
       // validated password value
       const maxLength = 8;
-      if (auth.password.value.length < maxLength) return false;
+      if (value.length < maxLength) validation = false;
+      else validation = true;
+
+      if (!validation) message = "비밀번호는 8자 이상이어야 합니다.";
     }
 
-    setAuth((auth) =>
-      produce(auth, (entry) => {
-        entry.email.value = "";
-        entry.password.value = "";
-      })
-    );
+    if (validation) message = "";
+
+    return { validation, message, value };
   };
 
-  const { setToken } = useAuth();
-  const submitAuth = async () => {
-    const { message, token } = await login({
+  const submitAuth = async (userType: "login" | "signUp") => {
+    const getTokenByAuth = userType === "login" ? login : signUp;
+
+    const { message, token } = await getTokenByAuth({
       email: auth.email.value,
       password: auth.password.value,
     });
 
-    // signUp;
+    console.log(message, token);
+
     setToken(token);
-    navigate("/");
+    // navigate("/");
   };
 
-  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const isCorrect = useMemo(
+    () => !!auth.email.value && auth.email.isValidated && !!auth.password.value && auth.password.isValidated,
+    [auth.email.isValidated, auth.email.value, auth.password.isValidated, auth.password.value]
+  );
 
-  const [isCorrect, setIsCorrect] = useState(false);
-
-  useEffect(() => {
-    const { email, password } = auth;
-    if (email.isValidated && password.isValidated) setIsCorrect(true);
-    else setIsCorrect(false);
-  }, [auth]);
-
-  useEffect(() => {
-    if (isCorrect) submitAuth();
-  }, [isCorrect]);
+  useEffect(() => {}, []);
 
   return (
-    <div>
-      <input type='text' name='email' defaultValue={auth.email.value} onChange={handleAuthInput} />
-      <input type='text' name='password' defaultValue={auth.password.value} onChange={handleAuthInput} />
-      <span>{errMsg}</span>
-      <button type='submit' disabled={!isCorrect} style={{ border: isCorrect ? "" : "solid 1px red" }} onClick={() => validatedtAuthValue("signUp")}>
-        회원가입
-      </button>
-      <button type='submit' disabled={!isCorrect} style={{ border: isCorrect ? "" : "solid 1px red" }} onClick={() => validatedtAuthValue("login")}>
-        로그인
-      </button>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <h4>회원가입 | 로그인</h4>
+      {(["email", "password"] as const).map((name, index) => {
+        const hasErrorState = auth[name].value !== "" && !auth[name].isValidated;
+        return (
+          <label key={index} htmlFor=''>
+            <span>{name === "email" ? "이메일" : "패스워드"}</span>
+            <input
+              type='text'
+              name={name}
+              style={{ border: hasErrorState ? "solid 1px red" : "" }}
+              onChange={(e) => {
+                const { value, message, validation } = validationAuthValue(name, e.target.value);
+
+                setErrorState((error) =>
+                  produce(error, (entry) => {
+                    entry[name].isError = !validation;
+                    entry[name].message = message;
+                  })
+                );
+
+                setAuth((auth) =>
+                  produce(auth, (entry) => {
+                    entry[name].value = value;
+                    entry[name].isValidated = validation;
+                  })
+                );
+              }}
+            />
+            {errorState[name].isError && <span>{errorState[name].message}</span>}
+          </label>
+        );
+      })}
+      <div>
+        <button type='submit' disabled={!isCorrect} style={{ opacity: isCorrect ? 1 : 0.3 }} onClick={() => submitAuth("signUp")}>
+          회원가입
+        </button>
+        <button type='submit' disabled={!isCorrect} style={{ opacity: isCorrect ? 1 : 0.3 }} onClick={() => submitAuth("login")}>
+          로그인
+        </button>
+      </div>
     </div>
   );
 };
