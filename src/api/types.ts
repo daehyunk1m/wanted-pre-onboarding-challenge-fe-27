@@ -1,5 +1,5 @@
 // Base types
-export type Tresponse<T> = { data: T };
+export type TResponse<T> = { data: T };
 /**
  * Auth
  * --
@@ -8,7 +8,7 @@ export type Tresponse<T> = { data: T };
   "token": "eyJhbGciOiJIUzI1NiJ9.YXNkZkBhc2RmYXNkZi5jb20.h-oLZnV0pCeNKa_AM3ilQzerD2Uj7bKUn1xDft5DzOk"
   }
  */
-export type Tauth = Record<"message" | "token", string>;
+export type TAuth = Record<"message" | "token", string>;
 /**
  * Todos
  * --
@@ -20,11 +20,11 @@ export type Tauth = Record<"message" | "token", string>;
     updatedAt: "2022-07-24T14:15:55.537Z";
   }
  */
-export type Ttodos = Record<"title" | "content" | "id" | "createdAt" | "updatedAt", string>;
+export type TTodos = Record<"title" | "content" | "id" | "createdAt" | "updatedAt", string>;
 
 // API types
-export type TgetTodos = Tresponse<Ttodos[]>;
-export type TgetTodoById = Tresponse<Ttodos>;
-export type TcreateTodo = Tresponse<Ttodos>;
-export type TupdateTodo = Tresponse<Ttodos>;
-export type TdeleteTodo = Tresponse<null>;
+export type TgetTodos = TResponse<TTodos[]>;
+export type TgetTodoById = TResponse<TTodos>;
+export type TcreateTodo = TResponse<TTodos>;
+export type TupdateTodo = TResponse<TTodos>;
+export type TdeleteTodo = TResponse<null>;

@@ -17,7 +17,6 @@ const Auth = () => {
     email: { isError: false, message: "" },
     password: { isError: false, message: "" },
   });
-  // const [buttonType, setButtonType] = useState<"login" | "signUp">("login");
 
   /**
    * auth validation
@@ -52,24 +51,22 @@ const Auth = () => {
 
   const submitAuth = async (userType: "login" | "signUp") => {
     const getTokenByAuth = userType === "login" ? login : signUp;
+    const email = auth.email.value;
+    const password = auth.password.value;
 
-    const { message, token } = await getTokenByAuth({
-      email: auth.email.value,
-      password: auth.password.value,
-    });
+    const { message, token } = await getTokenByAuth({ email, password });
 
-    console.log(message, token);
+    console.log(message);
 
+    localStorage.setItem("usr", JSON.stringify({ id: email, token, timestamp: Date.now() }));
     setToken(token);
-    // navigate("/");
+    navigate("/");
   };
 
   const isCorrect = useMemo(
     () => !!auth.email.value && auth.email.isValidated && !!auth.password.value && auth.password.isValidated,
     [auth.email.isValidated, auth.email.value, auth.password.isValidated, auth.password.value]
   );
-
-  useEffect(() => {}, []);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
