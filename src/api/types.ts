@@ -23,8 +23,8 @@ export type TAuth = Record<"message" | "token", string>;
 export type TTodos = Record<"title" | "content" | "id" | "createdAt" | "updatedAt", string>;
 
 // API types
-export type TgetTodos = TResponse<TTodos[]>;
-export type TgetTodoById = TResponse<TTodos>;
-export type TcreateTodo = TResponse<TTodos>;
-export type TupdateTodo = TResponse<TTodos>;
-export type TdeleteTodo = TResponse<null>;
+export type TGetTodos = TResponse<TTodos[]>;
+export type TGetTodoById = TResponse<TTodos>;
+export type TCreateTodo = TResponse<TTodos>;
+export type TUpdateTodo = TResponse<TTodos>;
+export type TDeleteTodo = TResponse<null>;

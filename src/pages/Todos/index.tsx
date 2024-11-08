@@ -35,16 +35,6 @@ const Todos = () => {
     }
   }, [token]);
 
-  const handleAddTodo = async () => {
-    const { data } = await createTodo(
-      {
-        title: "",
-        content: "",
-      },
-      token!
-    );
-  };
-
   const handleLogOut = () => {
     localStorage.clear();
     navigate("/auth");
@@ -59,7 +49,7 @@ const Todos = () => {
         </div>
       )}
 
-      {modalOpen && <Modal />}
+      {modalOpen && <Modal setModalOpen={setModalOpen} />}
       <div>
         <button onClick={() => setModalOpen(!modalOpen)}>할일 추가하기</button>
       </div>
@@ -68,8 +58,8 @@ const Todos = () => {
       {list.length === 0 ? (
         <div>투두 리스트가 비어있습니다.</div>
       ) : (
-        list.map((el, i) => {
-          return <Todo key={i} />;
+        list.map((data) => {
+          return <Todo key={data.id} data={data} />;
         })
       )}
     </div>

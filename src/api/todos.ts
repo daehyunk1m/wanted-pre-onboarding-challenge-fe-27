@@ -1,8 +1,8 @@
 import { api } from "../shared/client";
-import { TcreateTodo, TdeleteTodo, TgetTodoById, TgetTodos, TupdateTodo } from "./types";
+import { TCreateTodo, TDeleteTodo, TGetTodoById, TGetTodos, TUpdateTodo } from "./types";
 
 export const getTodos = async (token: string) => {
-  const response = await api.get<TgetTodos>("/todos", {
+  const response = await api.get<TGetTodos>("/todos", {
     headers: {
       Authorization: token,
     },
@@ -12,7 +12,7 @@ export const getTodos = async (token: string) => {
 };
 
 export const getTodoById = async (id: string, token: string) => {
-  const response = await api.get<TgetTodoById>(`/todos/${id}`, {
+  const response = await api.get<TGetTodoById>(`/todos/${id}`, {
     headers: {
       Authorization: token,
     },
@@ -21,8 +21,8 @@ export const getTodoById = async (id: string, token: string) => {
   return response;
 };
 
-export const createTodo = async (body: { title: string; content: string }, token: string) => {
-  const response = await api.post<TcreateTodo>("/todos", {
+export const createTodo = async ({ body, token }: { body: { title: string; content: string }; token: string }) => {
+  const response = await api.post<TCreateTodo>("/todos", {
     body,
     headers: {
       Authorization: token,
@@ -32,8 +32,9 @@ export const createTodo = async (body: { title: string; content: string }, token
   return response;
 };
 
-export const updateTodo = async (id: string, token: string) => {
-  const response = await api.put<TupdateTodo>(`/todos/${id}`, {
+export const updateTodo = async ({ id, body, token }: { id: string; body: { title: string; content: string }; token: string }) => {
+  const response = await api.put<TUpdateTodo>(`/todos/${id}`, {
+    body,
     headers: {
       Authorization: token,
     },
@@ -42,8 +43,8 @@ export const updateTodo = async (id: string, token: string) => {
   return response;
 };
 
-export const deleteTodo = async (id: string, token: string) => {
-  const response = await api.delete<TdeleteTodo>(`/todos/${id}`, {
+export const deleteTodo = async ({ id, token }: { id: string; token: string }) => {
+  const response = await api.delete<TDeleteTodo>(`/todos/${id}`, {
     headers: {
       Authorization: token,
     },
