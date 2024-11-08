@@ -11,6 +11,8 @@ const Todos = () => {
   const navigate = useNavigate();
 
   const [list, setList] = useState<TTodos[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     const callList = async (token: string) => {
@@ -19,8 +21,14 @@ const Todos = () => {
       setList(data);
     };
 
-    if (token) callList(token);
-    else {
+    if (token) {
+      const user = JSON.parse(localStorage.getItem("usr")!);
+      const [name] = String(user?.id).split("@");
+
+      callList(token);
+
+      setUserName(name);
+    } else {
       console.log("not Token");
 
       navigate("/auth");
@@ -37,10 +45,20 @@ const Todos = () => {
     );
   };
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const handleLogOut = () => {
+    localStorage.clear();
+    navigate("/auth");
+  };
 
   return (
     <div>
+      {!!userName && (
+        <div>
+          <h2>안녕하세요. {userName}님</h2>
+          <button onClick={handleLogOut}>로그아웃</button>
+        </div>
+      )}
+
       {modalOpen && <Modal />}
       <div>
         <button onClick={() => setModalOpen(!modalOpen)}>할일 추가하기</button>
